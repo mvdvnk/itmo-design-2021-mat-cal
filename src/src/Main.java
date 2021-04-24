@@ -6,8 +6,8 @@ import java.util.Scanner;
 
 public class Main {
 
-    public static void main(String[] args) throws FileNotFoundException {//объявляется объект, на объекте метод print вып. файла вывод объекта, метод привеения к труг. виду
-        //вернуть из этого метода число, если число равно чему-то, то вывожу ответ, если нет, то вывожу ответ через им. константы.
+    public static void main(String[] args) throws FileNotFoundException {//РѕР±СЉСЏРІР»СЏРµС‚СЃСЏ РѕР±СЉРµРєС‚, РЅР° РѕР±СЉРµРєС‚Рµ РјРµС‚РѕРґ print РІС‹Рї. С„Р°Р№Р»Р° РІС‹РІРѕРґ РѕР±СЉРµРєС‚Р°, РјРµС‚РѕРґ РїСЂРёРІРµРµРЅРёСЏ Рє С‚СЂСѓРі. РІРёРґСѓ
+        //РІРµСЂРЅСѓС‚СЊ РёР· СЌС‚РѕРіРѕ РјРµС‚РѕРґР° С‡РёСЃР»Рѕ, РµСЃР»Рё С‡РёСЃР»Рѕ СЂР°РІРЅРѕ С‡РµРјСѓ-С‚Рѕ, С‚Рѕ РІС‹РІРѕР¶Сѓ РѕС‚РІРµС‚, РµСЃР»Рё РЅРµС‚, С‚Рѕ РІС‹РІРѕР¶Сѓ РѕС‚РІРµС‚ С‡РµСЂРµР· РёРј. РєРѕРЅСЃС‚Р°РЅС‚С‹.
         Gauss gauss = new Gauss();
         try{
             gauss.init("src/input.txt");
@@ -16,48 +16,31 @@ public class Main {
             System.out.println("FILE NOT FOUND!!!");
         }
 
-        System.out.println("Матрица:");
-        printMatrix(gauss.matrixData); //вывод матрицы и свободных коэфф.
-        int result = gauss.triangularForm();
-        if (result == 1) {
-        	System.out.println("Приведена к треугольному виду");
+        System.out.println("РњР°С‚СЂРёС†Р°:");
+        printMatrix(gauss.matrixData); //РІС‹РІРѕРґ РјР°С‚СЂРёС†С‹ Рё СЃРІРѕР±РѕРґРЅС‹С… РєРѕСЌС„С„.
+
+        int result = gauss.solve();
+        printResult(result);
+
+        if(result == 0){
+            System.out.println("РўСЂРµСѓРіРѕР»СЊРЅС‹Р№ РІРёРґ РјР°С‚СЂРёС†С‹:");
+            printMatrix(gauss.matrixData);
+
+            System.out.println("РћС‚РІРµС‚:");
+            for(double x : gauss.backtrace())
+                System.out.printf("%15.6E\n", x);
         }
-        else {
-        	System.out.println("Не удалось привести к треугольному виду. Матрица вырождена");
-        
-        }
-        
-        gauss.solve();
-        getResult(gauss);
     }
 
-    public static void getResult(Gauss gauss) {
-        int gaussResult = gauss.getResult();
-        switch (gaussResult) {
-            case 0: {
-                System.out.println("Не удалось привести к треугольному виду. Матрица вырождена");
-            }
-            break;
-            case 1: {
-                System.out.println("Треугольная матрица:");
-                Main.printMatrix(gauss.getMatrixData());
-                double[] answer = gauss.backtrace();//ответ
-                System.out.println("Ответ: ");
-                System.out.println(" ");
-                for (int i = 0; i < gauss.getN(); i++)
-                    System.out.printf("%15.6E\n", answer[i]);
-                System.out.println(" ");
-            }
-            break;
-            case 2: {
-                System.out.println("Нет решений.");
-            }
-            break;
-            case 3: {
-                System.out.println("Бесконечно много решений.");
-            }
-            break;
-        }
+    public static void printResult(int gaussResult) {
+        String output = switch (gaussResult){
+            case 0 -> "РЈ РјР°С‚СЂРёС†С‹ РµСЃС‚СЊ СЂРµС€РµРЅРёРµ!";
+            case 1 -> "РњР°С‚СЂРёС†Р° РІС‹СЂРѕР¶РґРµРЅР°";
+            case 2 -> "РќРµС‚ СЂРµС€РµРЅРёСЏ";
+            case 3 -> "Р‘РµСЃРєРѕРЅРµС‡РЅРѕ РјРЅРѕРіРѕ СЂРµС€РµРЅРёР№";
+            default -> throw new IllegalStateException("Р§Рµ РІР°С‰Рµ РїСЂРѕРёР·РѕС€Р»Рѕ. Р РµР·СѓР»СЊС‚Р°С‚: " + gaussResult);
+        };
+        System.out.println(output);
     }
 
 

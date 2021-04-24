@@ -10,23 +10,17 @@ public class Gauss {
     private double precision;
     private int n;
 
-    public int getResult() {
-        return result;
-    }
-
-    private int result;
-
     public void init(String filename) throws FileNotFoundException {
         int countOfNumbersAfterZero;
         double[][] matrix;
-        File file = new File(filename); //файл
-        try (Scanner scan = new Scanner(file)) { //сканнер
+        File file = new File(filename); //С„Р°Р№Р»
+        try (Scanner scan = new Scanner(file)) { //СЃРєР°РЅРЅРµСЂ
             n = scan.nextInt();
             countOfNumbersAfterZero = scan.nextInt();
 
-            precision = Math.pow(10, -(countOfNumbersAfterZero + 1)); //лучше с файла
+            precision = Math.pow(10, -(countOfNumbersAfterZero + 1)); //Р»СѓС‡С€Рµ СЃ С„Р°Р№Р»Р°
             matrixData = new double[n][];
-            for (int i = 0; i < n; i++) { //читаем матрицу
+            for (int i = 0; i < n; i++) { //С‡РёС‚Р°РµРј РјР°С‚СЂРёС†Сѓ
                 matrixData[i] = new double[n + 1];
                 for (int j = 0; j < n + 1; j++) {
                     matrixData[i][j] = scan.nextDouble();
@@ -36,70 +30,56 @@ public class Gauss {
     }
 
 
-    public double[] backtrace() { // обратная подстановка
-        //matrixData.length - количество строчек. У нас ещё есть дополнительный столбец
-        //под номером как раз matrixData.length - столбец свободного члена
+    public double[] backtrace() { // РѕР±СЂР°С‚РЅР°СЏ РїРѕРґСЃС‚Р°РЅРѕРІРєР°
+        //matrixData.length - РєРѕР»РёС‡РµСЃС‚РІРѕ СЃС‚СЂРѕС‡РµРє. РЈ РЅР°СЃ РµС‰С‘ РµСЃС‚СЊ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№ СЃС‚РѕР»Р±РµС†
+        //РїРѕРґ РЅРѕРјРµСЂРѕРј РєР°Рє СЂР°Р· matrixData.length - СЃС‚РѕР»Р±РµС† СЃРІРѕР±РѕРґРЅРѕРіРѕ С‡Р»РµРЅР°
         double[] answerData = new double[matrixData.length];
 
         for (int k = answerData.length - 1; k >= 0; k--) {
-            for (int j = k + 1; j < answerData.length; j++) { // все найд. ответы умножаем на соответствующие
-                // коэффициенты в текущем уравнении и вычитаем из b
+            for (int j = k + 1; j < answerData.length; j++) // РІСЃРµ РЅР°Р№Рґ. РѕС‚РІРµС‚С‹ СѓРјРЅРѕР¶Р°РµРј РЅР° СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёРµ
+                // РєРѕСЌС„С„РёС†РёРµРЅС‚С‹ РІ С‚РµРєСѓС‰РµРј СѓСЂР°РІРЅРµРЅРёРё Рё РІС‹С‡РёС‚Р°РµРј РёР· b
                 matrixData[k][matrixData.length] -= answerData[j] * matrixData[k][j];
-            }
+
             answerData[k] = matrixData[k][matrixData.length] / matrixData[k][k];
         }
         return answerData;
     }
 
-    protected void checkZeroSolutions() {
+    protected int checkZeroSolutions() {
         int len = matrixData.length;
-        if (isZero(matrixData[len - 1][len - 1]) && !isZero(matrixData[len - 1][len])) {//строка с которой работаю и с какими отрабатываю
-            result = 2;
-        }
+        if (isZero(matrixData[len - 1][len - 1]) && !isZero(matrixData[len - 1][len]))//СЃС‚СЂРѕРєР° СЃ РєРѕС‚РѕСЂРѕР№ СЂР°Р±РѕС‚Р°СЋ Рё СЃ РєР°РєРёРјРё РѕС‚СЂР°Р±Р°С‚С‹РІР°СЋ
+            return 2;
+        return 0;
     }
 
     // 1 2 3 3 |1
     // 1 5 4 5 |2
     // 1 0 0 5 |3
-    // 0 0 0 0 |0 <- проверка последних двух нулей
-    private void checkInftySolutions() {
+    // 0 0 0 0 |0 <- РїСЂРѕРІРµСЂРєР° РїРѕСЃР»РµРґРЅРёС… РґРІСѓС… РЅСѓР»РµР№
+    private int checkInftySolutions() {
         int len = matrixData.length;
-        if (isZero(matrixData[len - 1][len - 1]) && isZero(matrixData[len - 1][len])) {
-            result = 3; // infty solutions
-        }
+        if (isZero(matrixData[len - 1][len - 1]) && isZero(matrixData[len - 1][len]))
+            return 3; // infty solutions
+        return 0;
     }
 
-    public int triangularForm() { // приведение к треугольному виду
-        for (int i = 0; i < matrixData.length; i++) { // первый цикл
-            // zerocoeff - второй цикл
-            if (!zeroCoeff(i)) { // если функция вернула true, то найден ненулевой, идем дальше. Иначе приведение
-                // невозможно
-                return 0;//
+    public int triangularForm() { // РїСЂРёРІРµРґРµРЅРёРµ Рє С‚СЂРµСѓРіРѕР»СЊРЅРѕРјСѓ РІРёРґСѓ
+        for (int i = 0; i < matrixData.length; i++) { // РїРµСЂРІС‹Р№ С†РёРєР»
+            // zerocoeff - РІС‚РѕСЂРѕР№ С†РёРєР»
+            if (!zeroCoeff(i)) { // РµСЃР»Рё С„СѓРЅРєС†РёСЏ РІРµСЂРЅСѓР»Р° true, С‚Рѕ РЅР°Р№РґРµРЅ РЅРµРЅСѓР»РµРІРѕР№, РёРґРµРј РґР°Р»СЊС€Рµ. РРЅР°С‡Рµ РїСЂРёРІРµРґРµРЅРёРµ
+                // РЅРµРІРѕР·РјРѕР¶РЅРѕ
+                return 1;
             }
-            eliminateDiagonal(i); // исключаем диаг. коэфф,
+            eliminateDiagonal(i); // РёСЃРєР»СЋС‡Р°РµРј РґРёР°Рі. РєРѕСЌС„С„,
         }
-        return 1;
+        return 0;
     }
 
-
-//    1 0 0
-//    2 1 1
-//    3 0 0
-
-    private void eliminateDiagonal(int diagonalIndex) { // зануляем весь столбец под ненулевым элементом.
-        for (int k = diagonalIndex + 1; k < matrixData.length; k++) { // Исключаем коэффициент в k-м уравнении, начиная
-            // со следующего
-             // это m - занести в метод
-            //System.out.println("d = " + diagonalIndex + "; k = " + k + "; m = " + m);
-            matrixData[k][diagonalIndex] = 0; // matrixData[k][i] = matrixData[k][i] -
-            // relationCoefficient*matrixData[i][i]
-//            matrixData[k][diagonalIndex] -= m * matrixData[diagonalIndex][diagonalIndex];
+    private void eliminateDiagonal(int diagonalIndex) { // Р·Р°РЅСѓР»СЏРµРј РІРµСЃСЊ СЃС‚РѕР»Р±РµС† РїРѕРґ РЅРµРЅСѓР»РµРІС‹Рј СЌР»РµРјРµРЅС‚РѕРј.
+        for (int k = diagonalIndex + 1; k < matrixData.length; k++) { // РСЃРєР»СЋС‡Р°РµРј РєРѕСЌС„С„РёС†РёРµРЅС‚ РІ k-Рј СѓСЂР°РІРЅРµРЅРёРё, РЅР°С‡РёРЅР°СЏ
+            // СЃРѕ СЃР»РµРґСѓСЋС‰РµРіРѕ
             coeffCount(matrixData, diagonalIndex, k);
-            //private void coeffCount(double matrixData[][], double m) {
-            //for (int j = diagonalIndex + 1; j < matrixData.length ; j++) //
-            //matrixData[k][j] = matrixData[k][j] - matrixData[diagonalIndex][j] * m; // пересчёт строчки !! в отд. метод
-
-            //matrixData[k][matrixData.length] -= matrixData[diagonalIndex][matrixData.length]  * m; // пересчёт свободных членов
+            matrixData[k][diagonalIndex] = 0;
         }
     }
     private void coeffCount(double matrixData[][], int diagonalIndex, int k) {
@@ -110,25 +90,25 @@ public class Gauss {
     }
 
 
-    private boolean zeroCoeff(int diagonalIndex) { // ищем первую строчку, в которой коэфф. не равен 0, меняем местами,
-        // увеличиваем кол-во перестановок (a11 !=0)
+    private boolean zeroCoeff(int diagonalIndex) { // РёС‰РµРј РїРµСЂРІСѓСЋ СЃС‚СЂРѕС‡РєСѓ, РІ РєРѕС‚РѕСЂРѕР№ РєРѕСЌС„С„. РЅРµ СЂР°РІРµРЅ 0, РјРµРЅСЏРµРј РјРµСЃС‚Р°РјРё,
+        // СѓРІРµР»РёС‡РёРІР°РµРј РєРѕР»-РІРѕ РїРµСЂРµСЃС‚Р°РЅРѕРІРѕРє (a11 !=0)
         for (int numberToSwap = diagonalIndex; numberToSwap < matrixData.length; numberToSwap++) {
-            if (!isZero(matrixData[numberToSwap][diagonalIndex])) { //!! не сравн. с 0 (точность - из файла/константа)
+            if (!isZero(matrixData[numberToSwap][diagonalIndex])) { //!! РЅРµ СЃСЂР°РІРЅ. СЃ 0 (С‚РѕС‡РЅРѕСЃС‚СЊ - РёР· С„Р°Р№Р»Р°/РєРѕРЅСЃС‚Р°РЅС‚Р°)
                 swapEquations(numberToSwap, diagonalIndex);
                 return true;
             }
             // System.out.println(matrixData[equationNumberToSwap][indexOfDiagonalCoef]);
         }
-        return false; // столбец нулей, приведение невозможно
+        return false; // СЃС‚РѕР»Р±РµС† РЅСѓР»РµР№, РїСЂРёРІРµРґРµРЅРёРµ РЅРµРІРѕР·РјРѕР¶РЅРѕ
     }
 
-    private void swapEquations(int numberToSwap, int diagonalIndex) { // меняем местами уравнения
+    private void swapEquations(int numberToSwap, int diagonalIndex) { // РјРµРЅСЏРµРј РјРµСЃС‚Р°РјРё СѓСЂР°РІРЅРµРЅРёСЏ
         double[] temp = matrixData[numberToSwap];
         matrixData[numberToSwap] = matrixData[diagonalIndex];
         matrixData[diagonalIndex] = temp;
     }
 
-    public boolean isZero(double value) { //сравнение с
+    public boolean isZero(double value) { //СЃСЂР°РІРЅРµРЅРёРµ СЃ
         return Math.abs(value) <= this.precision;
     }
 
@@ -141,19 +121,17 @@ public class Gauss {
     }
 
     public int solve() {
-        if (triangularForm()) { // если привели к треугольному виду, то есть n решений
+        int result = 0;
+
+        if (triangularForm() == 1) // РјР°С‚СЂРёС†Р° РІС‹СЂРѕР¶РґРµРЅР°
             result = 1;
-        } else { // Матрицу не удалось преобразовать к треугольному виду, det = 0;
-            result = 0;
-        }
-        checkInftySolutions();
-        if (result ==3) {
-        	System.out.println("Бесконечно много решений.");
-        }
-        checkZeroSolutions();
-        if (result == 2) {
-        	System.out.println("Нет решений.");
-        }
+        else
+            if(checkZeroSolutions() == 2)
+                result = 2;
+            else if(checkInftySolutions() == 3)
+                result = 3;
+
+        return result;
     }
 
 }
